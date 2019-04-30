@@ -38,15 +38,7 @@ uncorrelated = "../00Uncorrelated/n00050/R01000"
 weakly_correlated = "../01WeaklyCorrelated/n00050/R01000"
 strongly_correlated = "../02StronglyCorrelated/n00050/R01000"
 inverse_strongly_correlated = "../03InverseStronglyCorrelated/n00050/R01000"
-almost_strongly_correlated = "../04AlmostStronglyCorrelated/n00050/R01000"
 subset_sum_correlated = "../05SubsetSum/n00050/R01000"
-uncorrelated_with_similar_w = "../06UncorrelatedWithSimilarWeights/n00050/R01000"
-spanner_uncorrelated_p = "../07SpannerUncorrelated/n00050/R01000"
-spanner_weakly_c = "../08SpannerWeaklyCorrelated/n00050/R01000"
-spanner_strong = "../09SpannerStronglyCorrelated/n00050/R01000"
-multiple_strong = "../10MultipleStronglyCorrelated/n00050/R01000"
-profit = "../11ProfitCeiling/n00050/R01000"
-circle_p = "../12Circle/n00050/R01000"
 
 
 def read_data(paths, targets):
@@ -94,25 +86,23 @@ def read_data(paths, targets):
 def save_as_csv(dataset):
     dataset.describe().to_csv("description.csv")
 
+
 def plot_variables(dataset):
     sns.set(style="whitegrid")
     for column in dataset.columns.drop(["num"]):
         sns.boxplot(x=dataset[column])
         plt.show()
 
+
 def create_dataset():
     # Primero leemos los datos y les asignamos las etiquetas
-    paths = [uncorrelated, weakly_correlated, strongly_correlated, inverse_strongly_correlated,
-             almost_strongly_correlated, subset_sum_correlated, uncorrelated_with_similar_w,
-             spanner_uncorrelated_p, spanner_weakly_c, spanner_strong, multiple_strong,
-             profit, circle_p]
+    paths = [uncorrelated, weakly_correlated, strongly_correlated,
+             inverse_strongly_correlated, subset_sum_correlated]
 
-    targets = [UNCORRELATED, WEAKLY, STRONGLY, INVERSE, ALMOST_STRONG, SUBSET_SUM,
-               UNCORRELATED_WITH_SIMILAR, SPANNER_UNCORRELATED, SPANNER_WEAKLY_CORRELATED,
-               SPANNER_STRONGLY_CORRELATED, MULTIPLE_STRONGLY_CORRELATED, PROFIT_CEILING, CIRCLE]
+    targets = [UNCORRELATED, WEAKLY, STRONGLY, INVERSE, SUBSET_SUM]
     dataframe = read_data(paths, targets)
     y_data = dataframe[TARGET]
     x_data = dataframe.drop(TARGET, axis=1)
     save_as_csv(dataframe)
-    #plot_variables(dataframe)
+    # plot_variables(dataframe)
     return x_data, y_data, dataframe
