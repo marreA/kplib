@@ -3,9 +3,12 @@ import numpy as np
 from os import listdir
 from os.path import isfile, join
 import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set()
+from sklearn.utils import shuffle
+from sklearn.decomposition import PCA
 
+import seaborn as sns
+
+sns.set()
 
 UNCORRELATED = 0
 WEAKLY = 1
@@ -19,7 +22,7 @@ SPANNER_WEAKLY_CORRELATED = 8
 SPANNER_STRONGLY_CORRELATED = 9
 MULTIPLE_STRONGLY_CORRELATED = 10
 PROFIT_CEILING = 11
-CIRLE = 12
+CIRCLE = 12
 TARGET = "target"
 NUM = "num"
 CAPACITY = "capacity"
@@ -84,8 +87,18 @@ def read_data(paths, targets):
     # - Relacion
     # - Target
     dataframe = pd.DataFrame(list_of_data)
+    dataframe = shuffle(dataframe)
     return dataframe
 
+
+def save_as_csv(dataset):
+    dataset.describe().to_csv("description.csv")
+
+def plot_variables(dataset):
+    sns.set(style="whitegrid")
+    for column in dataset.columns.drop(["num"]):
+        sns.boxplot(x=dataset[column])
+        plt.show()
 
 def create_dataset():
     # Primero leemos los datos y les asignamos las etiquetas
@@ -96,8 +109,10 @@ def create_dataset():
 
     targets = [UNCORRELATED, WEAKLY, STRONGLY, INVERSE, ALMOST_STRONG, SUBSET_SUM,
                UNCORRELATED_WITH_SIMILAR, SPANNER_UNCORRELATED, SPANNER_WEAKLY_CORRELATED,
-               SPANNER_STRONGLY_CORRELATED, MULTIPLE_STRONGLY_CORRELATED, PROFIT_CEILING, CIRLE]
+               SPANNER_STRONGLY_CORRELATED, MULTIPLE_STRONGLY_CORRELATED, PROFIT_CEILING, CIRCLE]
     dataframe = read_data(paths, targets)
-    x_data = dataframe.drop(TARGET, axis=1)
     y_data = dataframe[TARGET]
+    x_data = dataframe.drop(TARGET, axis=1)
+    save_as_csv(dataframe)
+    #plot_variables(dataframe)
     return x_data, y_data, dataframe

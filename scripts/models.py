@@ -1,28 +1,30 @@
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import LeaveOneOut, validation_curve, cross_val_score
+from sklearn.model_selection import cross_val_score
 from sklearn.metrics import classification_report
 from sklearn.tree import DecisionTreeClassifier
-import pandas as pd
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
-
+from sklearn.preprocessing import StandardScaler
+from sklearn.neural_network import MLPClassifier
 
 GAUSSIAN = "GNB"
+NEURAL = "NN"
 DECISION_TREE = "DT"
 RANDOM_FOREST = "RF"
 KNN = "KNN"
 SCORE = "SCORE"
 DECIMALS = 4
 
-labels = [GAUSSIAN, DECISION_TREE]
+labels = [GAUSSIAN, DECISION_TREE, NEURAL]
 
 
 def generate_all_models(knn_params, forest_params):
     models = []
     models.append(create_gaussian_model())
     models.append(create_decision_tree())
+    models.append(create_neural_network())
     for k in knn_params:
         models.append(create_parametered_model(k, KNN, KNeighborsClassifier))
     for f in forest_params:
@@ -39,18 +41,23 @@ def create_decision_tree():
     return [DecisionTreeClassifier(), DECISION_TREE]
 
 
+def create_neural_network():
+    return [MLPClassifier(solver="lbfgs", alpha=1e-5, hidden_layer_sizes=(15),
+                          random_state=1, tol=0.001, max_iter=1000), NEURAL]
+
+
 def create_parametered_model(param, label, model_type):
     label = f"{label}-{param}"
     labels.append(label)
     return [model_type(param), label]
 
 
-def run_experiment(models, x_data, y_data, cv_range):
+def run_experiment(models, x_data, y_data, cv_range, t_size=0.25):
     results = {}
     results.update([(key, {}) for key in labels])
 
     x_train, x_test, y_train, y_test = train_test_split(
-        x_data, y_data, random_state=1)
+        x_data, y_data, test_size=t_size, random_state=1)
     apply_models(models, results, x_train, x_test, y_train, y_test)
     run_all_models_with_cv(models, results, x_data, y_data, cv_range)
     return results

@@ -2,17 +2,13 @@
 
 from generate_dataset import read_data, create_dataset
 from models import *
-import itertools
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import LeaveOneOut, validation_curve, cross_val_score
 from sklearn.metrics import classification_report
-from sklearn.tree import DecisionTreeClassifier
 import pandas as pd
 from sklearn.metrics import accuracy_score, confusion_matrix
-from sklearn.naive_bayes import GaussianNB
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import train_test_split
-
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set()
+sns.set(color_codes=True)
 
 GAUSSIAN = "GNB"
 DECISION_TREE = "DT"
@@ -63,8 +59,9 @@ def plot_train_vs_test_accuracy(n, train_scores, test_scores, labels):
 if __name__ == "__main__":
 
     x_data, y_data, dataset = create_dataset()
+
     # Numeros de estimadores para aplicar RandomForest
-    n_estimators = [25, 50, 75, 100, 150, 200, 250]
+    n_estimators = [5, 10, 15, 20, 25, 50, 75, 100, 150, 200, 250]
     # Variamos el parametro K del KNN para comparar resultados
     k_parameters = range(2, 21)
     cv_range = range(2, 11)
