@@ -7,6 +7,8 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
+import operator
+from pprint import pprint as pprint
 sns.set()
 sns.set(color_codes=True)
 
@@ -74,3 +76,6 @@ if __name__ == "__main__":
     cv_dataframe["Best"] = cv_dataframe.idxmax(axis=1)
     cv_dataframe["Max-Mean"] = cv_dataframe.max(axis=1)
     cv_dataframe.to_html("index.html")
+    # Print Results
+    print(f"\n\nBest Founds:")
+    print(cv_dataframe[["Best", "Max-Mean"]])

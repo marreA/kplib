@@ -8,23 +8,23 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import Normalizer
+
 
 GAUSSIAN = "GNB"
-NEURAL = "NN"
 DECISION_TREE = "DT"
 RANDOM_FOREST = "RF"
 KNN = "KNN"
 SCORE = "SCORE"
 DECIMALS = 4
 
-labels = [GAUSSIAN, DECISION_TREE, NEURAL]
+labels = [GAUSSIAN, DECISION_TREE]
 
 
 def generate_all_models(knn_params, forest_params):
     models = []
     models.append(create_gaussian_model())
     models.append(create_decision_tree())
-    models.append(create_neural_network())
     for k in knn_params:
         models.append(create_parametered_model(k, KNN, KNeighborsClassifier))
     for f in forest_params:
@@ -41,23 +41,25 @@ def create_decision_tree():
     return [DecisionTreeClassifier(), DECISION_TREE]
 
 
-def create_neural_network():
-    return [MLPClassifier(solver="lbfgs", alpha=1e-5, hidden_layer_sizes=(15),
-                          random_state=1, tol=0.001, max_iter=1000), NEURAL]
-
-
 def create_parametered_model(param, label, model_type):
     label = f"{label}-{param}"
     labels.append(label)
     return [model_type(param), label]
 
 
-def run_experiment(models, x_data, y_data, cv_range, t_size=0.25):
+def run_experiment(models, x_data, y_data, cv_range, t_size=0.33):
     results = {}
     results.update([(key, {}) for key in labels])
 
     x_train, x_test, y_train, y_test = train_test_split(
         x_data, y_data, test_size=t_size, random_state=1)
+
+    # # Normalize data
+    # normalizer = Normalizer()
+    # normalizer.fit(x_train)
+    # x_train = normalizer.transform(x_train)
+    # x_test = normalizer.transform(x_test)
+
     apply_models(models, results, x_train, x_test, y_train, y_test)
     run_all_models_with_cv(models, results, x_data, y_data, cv_range)
     return results

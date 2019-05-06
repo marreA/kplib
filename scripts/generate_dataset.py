@@ -4,9 +4,8 @@ from os import listdir
 from os.path import isfile, join
 import matplotlib.pyplot as plt
 from sklearn.utils import shuffle
-from sklearn.decomposition import PCA
-
 import seaborn as sns
+from sklearn.preprocessing import Normalizer
 
 sns.set()
 
@@ -16,13 +15,7 @@ STRONGLY = 2
 INVERSE = 3
 ALMOST_STRONG = 4
 SUBSET_SUM = 5
-UNCORRELATED_WITH_SIMILAR = 6
-SPANNER_UNCORRELATED = 7
-SPANNER_WEAKLY_CORRELATED = 8
-SPANNER_STRONGLY_CORRELATED = 9
-MULTIPLE_STRONGLY_CORRELATED = 10
-PROFIT_CEILING = 11
-CIRCLE = 12
+
 TARGET = "target"
 NUM = "num"
 CAPACITY = "capacity"
@@ -34,44 +27,74 @@ RELATION = "relation"
 SUM_W = "sum_w"
 SUM_P = "sum_p"
 
-uncorrelated = "../00Uncorrelated/n00050/R01000"
-weakly_correlated = "../01WeaklyCorrelated/n00050/R01000"
-strongly_correlated = "../02StronglyCorrelated/n00050/R01000"
-inverse_strongly_correlated = "../03InverseStronglyCorrelated/n00050/R01000"
-subset_sum_correlated = "../05SubsetSum/n00050/R01000"
+uncorrelated = [
+    "../00Uncorrelated/n00050/R01000",
+    "../00Uncorrelated/n00100/R01000",
+    "../00Uncorrelated/n00200/R01000",
+    "../00Uncorrelated/n00500/R01000"
+]
+weakly_correlated = [
+    "../01WeaklyCorrelated/n00050/R01000",
+    "../01WeaklyCorrelated/n00100/R01000",
+    "../01WeaklyCorrelated/n00200/R01000",
+    "../01WeaklyCorrelated/n00500/R01000"
+]
+
+strongly_correlated = [
+    "../02StronglyCorrelated/n00050/R01000",
+    "../02StronglyCorrelated/n00100/R01000",
+    "../02StronglyCorrelated/n00200/R01000",
+    "../02StronglyCorrelated/n00500/R01000"
+]
+
+inverse_strongly = [
+    "../03InverseStronglyCorrelated/n00050/R01000",
+    "../03InverseStronglyCorrelated/n00100/R01000",
+    "../03InverseStronglyCorrelated/n00200/R01000",
+    "../03InverseStronglyCorrelated/n00500/R01000"
+]
+
+subset_sum = [
+    "../05SubsetSum/n00050/R01000",
+    "../05SubsetSum/n00100/R01000",
+    "../05SubsetSum/n00200/R01000",
+    "../05SubsetSum/n00500/R01000"
+]
 
 
-def read_data(paths, targets):
+# Recibe un diccionario de targets y paths
+def read_data(paths):
     list_of_data = []
-    for path, target in zip(paths, targets):
-        print(f"{path} --> {target}")
-        # Leemos los ficheros disponibles
-        filenames = [join(path, file)
-                     for file in listdir(path) if isfile(join(path, file))]
-        print(f"Found {len(filenames)} filenames")
-        # Leemos los datos de cada fichero
-        for filename in filenames:
-            data = {}
-            with open(filename) as file:
-                data_file = [line.split()
-                             for line in file if len(line.split()) >= 1]
-                # Cogemos el numero de elementos
-                data[NUM] = int(data_file[0][0])
-                data[CAPACITY] = float(data_file[1][0])
-                data[TARGET] = target
-                weights_and_profits = np.asfarray(data_file[2:])
-                minimums = np.amin(weights_and_profits, axis=0)
-                maximums = np.amax(weights_and_profits, axis=0)
-                data[MIN_WEIGHT] = minimums[0]
-                data[MAX_WEIGHT] = maximums[0]
-                data[MIN_PROFIT] = minimums[1]
-                data[MAX_PROFIT] = maximums[1]
-                sum_w_p = np.sum(weights_and_profits, axis=0)
-                # Dividimos la suma de los beneficios entre la suma de los pesos
-                data[RELATION] = sum_w_p[1] / sum_w_p[0]
-                data[SUM_W] = sum_w_p[0]
-                data[SUM_P] = sum_w_p[1]
-            list_of_data.append(data)
+    for target in paths:
+        for path in paths[target]:
+            print(f"{target} --> {path}")
+            # Leemos los ficheros disponibles
+            filenames = [join(path, file)
+                         for file in listdir(path) if isfile(join(path, file))]
+            print(f"Found {len(filenames)} filenames")
+            # Leemos los datos de cada fichero
+            for filename in filenames:
+                data = {}
+                with open(filename) as file:
+                    data_file = [line.split()
+                                 for line in file if len(line.split()) >= 1]
+                    # Cogemos el numero de elementos
+                    data[NUM] = int(data_file[0][0])
+                    data[CAPACITY] = float(data_file[1][0])
+                    data[TARGET] = target
+                    weights_and_profits = np.asfarray(data_file[2:])
+                    minimums = np.amin(weights_and_profits, axis=0)
+                    maximums = np.amax(weights_and_profits, axis=0)
+                    data[MIN_WEIGHT] = minimums[0]
+                    data[MAX_WEIGHT] = maximums[0]
+                    data[MIN_PROFIT] = minimums[1]
+                    data[MAX_PROFIT] = maximums[1]
+                    sum_w_p = np.sum(weights_and_profits, axis=0)
+                    # Dividimos la suma de los beneficios entre la suma de los pesos
+                    data[RELATION] = sum_w_p[1] / sum_w_p[0]
+                    data[SUM_W] = sum_w_p[0]
+                    data[SUM_P] = sum_w_p[1]
+                list_of_data.append(data)
     # Creamos un dataframe con la lista de elementos
     # En la lista, cada elemento es un diccionario que contiene
     # - Numero de elementos
@@ -79,7 +102,6 @@ def read_data(paths, targets):
     # - Relacion
     # - Target
     dataframe = pd.DataFrame(list_of_data)
-    dataframe = shuffle(dataframe)
     return dataframe
 
 
@@ -94,13 +116,34 @@ def plot_variables(dataset):
         plt.show()
 
 
-def create_dataset():
-    # Primero leemos los datos y les asignamos las etiquetas
-    paths = [uncorrelated, weakly_correlated, strongly_correlated,
-             inverse_strongly_correlated, subset_sum_correlated]
+def load_paths():
+    paths = {}
+    paths[UNCORRELATED] = uncorrelated
+    paths[WEAKLY] = weakly_correlated
+    paths[STRONGLY] = strongly_correlated
+    paths[INVERSE] = inverse_strongly
+    paths[SUBSET_SUM] = subset_sum
+    return paths
 
-    targets = [UNCORRELATED, WEAKLY, STRONGLY, INVERSE, SUBSET_SUM]
-    dataframe = read_data(paths, targets)
+
+def create_dataset(normalize=True):
+    # Primero leemos los datos y les asignamos las etiquetas
+    paths = load_paths()
+    dataframe = read_data(paths)
+
+    # Normalizamos los datos
+    if normalize is True:
+        normalizer = Normalizer()
+        data = normalizer.fit_transform(dataframe.drop(
+            columns=["target"]), dataframe["target"])
+        data = pd.DataFrame(data)
+        data.columns = dataframe.columns.drop("target")
+        data["target"] = dataframe["target"]
+        dataframe = data
+        print(f"Dataframe:\n{dataframe}")
+        print(f"Data: \n{data}")
+
+    dataframe = shuffle(dataframe)
     y_data = dataframe[TARGET]
     x_data = dataframe.drop(TARGET, axis=1)
     save_as_csv(dataframe)
