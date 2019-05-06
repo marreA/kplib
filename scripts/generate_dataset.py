@@ -140,8 +140,6 @@ def create_dataset(normalize=True):
         data.columns = dataframe.columns.drop("target")
         data["target"] = dataframe["target"]
         dataframe = data
-        print(f"Dataframe:\n{dataframe}")
-        print(f"Data: \n{data}")
 
     dataframe = shuffle(dataframe)
     y_data = dataframe[TARGET]
