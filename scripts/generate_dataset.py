@@ -6,15 +6,8 @@ import matplotlib.pyplot as plt
 from sklearn.utils import shuffle
 import seaborn as sns
 from sklearn.preprocessing import Normalizer
-
+from instances_types import *
 sns.set()
-
-UNCORRELATED = 0
-WEAKLY = 1
-STRONGLY = 2
-INVERSE = 3
-ALMOST_STRONG = 4
-SUBSET_SUM = 5
 
 TARGET = "target"
 NUM = "num"
@@ -26,40 +19,6 @@ MAX_PROFIT = "max_profit"
 RELATION = "relation"
 SUM_W = "sum_w"
 SUM_P = "sum_p"
-
-uncorrelated = [
-    "../00Uncorrelated/n00050/R01000",
-    "../00Uncorrelated/n00100/R01000",
-    "../00Uncorrelated/n00200/R01000",
-    "../00Uncorrelated/n00500/R01000"
-]
-weakly_correlated = [
-    "../01WeaklyCorrelated/n00050/R01000",
-    "../01WeaklyCorrelated/n00100/R01000",
-    "../01WeaklyCorrelated/n00200/R01000",
-    "../01WeaklyCorrelated/n00500/R01000"
-]
-
-strongly_correlated = [
-    "../02StronglyCorrelated/n00050/R01000",
-    "../02StronglyCorrelated/n00100/R01000",
-    "../02StronglyCorrelated/n00200/R01000",
-    "../02StronglyCorrelated/n00500/R01000"
-]
-
-inverse_strongly = [
-    "../03InverseStronglyCorrelated/n00050/R01000",
-    "../03InverseStronglyCorrelated/n00100/R01000",
-    "../03InverseStronglyCorrelated/n00200/R01000",
-    "../03InverseStronglyCorrelated/n00500/R01000"
-]
-
-subset_sum = [
-    "../05SubsetSum/n00050/R01000",
-    "../05SubsetSum/n00100/R01000",
-    "../05SubsetSum/n00200/R01000",
-    "../05SubsetSum/n00500/R01000"
-]
 
 
 # Recibe un diccionario de targets y paths
@@ -106,7 +65,7 @@ def read_data(paths):
 
 
 def save_as_csv(dataset):
-    dataset.describe().to_csv("description.csv")
+    dataset.to_csv("dataset.csv")
 
 
 def plot_variables(dataset):
@@ -123,6 +82,13 @@ def load_paths():
     paths[STRONGLY] = strongly_correlated
     paths[INVERSE] = inverse_strongly
     paths[SUBSET_SUM] = subset_sum
+    paths[UNCORRELATED_WITH_S_W] = uncorrelated_w_w
+    paths[SPANNER_U] = spanner_u
+    paths[SPANNER_W] = spanner_w
+    paths[SPANNER_S] = spanner_s
+    paths[MULTIPLE_S] = multiple
+    paths[PROFIT_C] = profit
+    paths[CIRCLE] = circle
     return paths
 
 
