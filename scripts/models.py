@@ -54,12 +54,6 @@ def run_experiment(models, x_data, y_data, cv_range, t_size=0.33):
     x_train, x_test, y_train, y_test = train_test_split(
         x_data, y_data, test_size=t_size, random_state=1)
 
-    # # Normalize data
-    # normalizer = Normalizer()
-    # normalizer.fit(x_train)
-    # x_train = normalizer.transform(x_train)
-    # x_test = normalizer.transform(x_test)
-
     apply_models(models, results, x_train, x_test, y_train, y_test)
     run_all_models_with_cv(models, results, x_data, y_data, cv_range)
     return results

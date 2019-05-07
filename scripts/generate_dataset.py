@@ -70,7 +70,7 @@ def read_data(paths):
             print(f"{target} --> {path}")
             # Leemos los ficheros disponibles
             filenames = [join(path, file)
-                         for file in listdir(path) if isfile(join(path, file))]
+                         for file in listdir(path) if isfile(join(path, file)) and file.endswith(".kp")]
             print(f"Found {len(filenames)} filenames")
             # Leemos los datos de cada fichero
             for filename in filenames:
@@ -126,7 +126,7 @@ def load_paths():
     return paths
 
 
-def create_dataset(normalize=True):
+def create_dataset(normalize=True, shuff=True):
     # Primero leemos los datos y les asignamos las etiquetas
     paths = load_paths()
     dataframe = read_data(paths)
@@ -140,8 +140,9 @@ def create_dataset(normalize=True):
         data.columns = dataframe.columns.drop("target")
         data["target"] = dataframe["target"]
         dataframe = data
+    if shuff is True:
+        dataframe = shuffle(dataframe)
 
-    dataframe = shuffle(dataframe)
     y_data = dataframe[TARGET]
     x_data = dataframe.drop(TARGET, axis=1)
     save_as_csv(dataframe)
